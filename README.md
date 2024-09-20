@@ -1,4 +1,4 @@
-# API to PostgreSQL Data Ingestion Script
+# UNICEF PRIMERO API to PostgreSQL Data Ingestion Script
 
 This Python script is designed to authenticate with the Primero API, fetch case data, and insert it into a PostgreSQL database. It handles token-based authentication and transforms the JSON response from the API into structured data for PostgreSQL.
 
