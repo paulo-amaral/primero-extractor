@@ -2,6 +2,8 @@
 
 This Python script is designed to authenticate with the Primero API, fetch case data, and insert it into a PostgreSQL database. It handles token-based authentication and transforms the JSON response from the API into structured data for PostgreSQL.
 
+<img width="987" alt="Screenshot 2024-09-21 at 00 23 20" src="https://github.com/user-attachments/assets/20f974ed-a33b-4664-a6d4-95f35a5e2032">
+
 ## Features
 
 - **Token-Based Authentication**: The script uses the `/api/v2/tokens` endpoint to authenticate with the Primero API.
