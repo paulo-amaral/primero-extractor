@@ -96,12 +96,6 @@ API Response Issues: If the script cannot fetch data, verify that the API endpoi
 Contributing
 Feel free to fork this repository, make changes, and submit pull requests. Contributions are welcome!
 
-##License
-
-This project is licensed under the MIT License
-
-## Contact
-For any issues or questions, please contact the repository owner.
 
 
 ### Additional Notes:
