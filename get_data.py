@@ -1,3 +1,7 @@
+### Author: Paulo Amaral
+### Date: 22/09/2024
+
+
 import requests
 import psycopg2
 import json
@@ -67,7 +71,8 @@ def connect_to_postgres():
         print(f"Error connecting to PostgreSQL: {e}")
         return None
 
-# Function to create the necessary table (if it does not exist)
+# Function to create the necessary table (if it does not exist) - Please adjust it to get more data
+# Please adjust to reflect PRIMERO Data tables to import
 def create_table(connection):
     create_table_query = '''
     CREATE TABLE IF NOT EXISTS cases (
@@ -94,7 +99,7 @@ def create_table(connection):
     connection.commit()
     cursor.close()
 
-# Function to insert data into PostgreSQL
+# Function to insert data into PostgreSQL 
 def insert_data_into_postgres(connection, cases):
     insert_query = '''
     INSERT INTO cases (id, enabled, age, sex, name, status, case_id, owned_by, short_id, workflow, 
@@ -122,7 +127,7 @@ def insert_data_into_postgres(connection, cases):
             case.get('created_by'),
             case.get('last_updated_at'),
             case.get('last_updated_by'),
-            ','.join(case.get('nationality', [])),  # Join the nationality list into a comma-separated string
+            ','.join(case.get('nationality', [])),  # Join the nationality list into a comma-separated string (Cgeck table first)
             case.get('registration_date')
         )
         
