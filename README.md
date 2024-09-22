@@ -103,6 +103,7 @@ Feel free to fork this repository, make changes, and submit pull requests. Contr
 - **Configuration**: The README makes it clear where the user should update their PostgreSQL and API credentials.
 - **Table Schema**: The table schema section helps users understand the structure of the data being inserted into the database.
 - **Usage**: The usage section provides clear instructions on running the script.
+- **Security**: Instead of storing sensitive data in the script or directly setting environment variables in the shell, you can store them in a `.env` file, which is never committed to your version control system (like Git). Use the python-dotenv package to load them into your Python script.
 
 
 
