@@ -7,7 +7,7 @@ import psycopg2
 import json
 
 # PostgreSQL connection parameters
-# Remember, it's more suitable to put int in.env file
+# Remember, it's more suitable to put it in .env file
 DB_HOST = 'localhost'
 DB_NAME = 'primero'
 DB_USER = 'postgres'
@@ -20,8 +20,11 @@ API_CASES_URL = 'https://demo-tl.primero.org/api/v2/cases?per=100000'
 API_USER = ''
 API_PASSWORD = ''
 
-# Function to authenticate and get the token from the /tokens endpoint
 def authenticate():
+    """
+    Function to authenticate and get the token 
+    from the /tokens endpoint
+    """
     auth_payload = {
         "user": {
             "user_name": API_USER,
@@ -31,16 +34,28 @@ def authenticate():
     
     # Send POST request for authentication
     response = requests.post(API_TOKEN_URL, json=auth_payload)
-    
-    if response.status_code == 200:
-        # Assuming the response contains the authentication token
+    if response.status_code !== 200:
+        raise AssertionError("Authentication failed: %s", response.status_code)
         auth_data = response.json()
-        token = auth_data.get('token')  # Adjust this if the token is under a different field
+        token = auth_data.get('token')
         print("Authentication successful. Token received.")
-        return token
-    else:
-        print(f"Authentication failed: {response.status_code}")
-        return None
+    return token
+#option using requests 
+# response.raise_for_status()
+# auth_data = response.json()
+# token = auth_data.get('token')
+# print("Authentication successful. Token received.")
+# return token
+    
+    #if response.status_code == 200:
+        # Assuming the response contains the authentication token
+        #auth_data = response.json()
+       # token = auth_data.get('token')  # Adjust this if the token is under a different field
+       # print("Authentication successful. Token received.")
+       # return token
+    #else:
+        #print(f"Authentication failed: {response.status_code}")
+        #return None
 
 # Function to fetch cases from API using the token
 def fetch_data_from_api(token):
