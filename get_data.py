@@ -7,6 +7,7 @@ import psycopg2
 import json
 
 # PostgreSQL connection parameters
+# Remember, it's more suitable to put int in.env file
 DB_HOST = 'localhost'
 DB_NAME = 'primero'
 DB_USER = 'postgres'
