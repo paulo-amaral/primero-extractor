@@ -1,29 +1,31 @@
 ### Author: Paulo Amaral
 ### Date: 22/09/2024
 
-
 import requests
 import psycopg2
 import json
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # PostgreSQL connection parameters
-# Remember, it's more suitable to put it in .env file
-DB_HOST = 'localhost'
-DB_NAME = 'primero'
-DB_USER = 'postgres'
-DB_PASSWORD = ''
-DB_PORT = ''  # Default is 5432
+DB_HOST = os.getenv('DB_HOST', 'localhost')
+DB_NAME = os.getenv('DB_NAME', 'primero')
+DB_USER = os.getenv('DB_USER', 'postgres')
+DB_PASSWORD = os.getenv('DB_PASSWORD', '')
+DB_PORT = os.getenv('DB_PORT', '5432')
 
 # API Authentication details
-API_TOKEN_URL = 'https://demo-tl.primero.org/api/v2/tokens'
-API_CASES_URL = 'https://demo-tl.primero.org/api/v2/cases?per=100000'
-API_USER = ''
-API_PASSWORD = ''
+API_TOKEN_URL = os.getenv('API_TOKEN_URL', 'https://demo-tl.primero.org/api/v2/tokens')
+API_CASES_URL = os.getenv('API_CASES_URL', 'https://demo-tl.primero.org/api/v2/cases')
+API_USER = os.getenv('API_USER', '')
+API_PASSWORD = os.getenv('API_PASSWORD', '')
 
 def authenticate():
     """
-    Function to authenticate and get the token 
-    from the /tokens endpoint
+    Function to authenticate and get the token from the /tokens endpoint
     """
     auth_payload = {
         "user": {
@@ -34,42 +36,54 @@ def authenticate():
     
     # Send POST request for authentication
     response = requests.post(API_TOKEN_URL, json=auth_payload)
+    if response.status_code != 200:
+        raise AssertionError(f"Authentication failed: {response.status_code}")
+    
+    auth_data = response.json()
+    token = auth_data.get('token')
+    print("Authentication successful. Token received.")
+    return token
+    
+    # Send POST request for authentication
+    response = requests.post(API_TOKEN_URL, json=auth_payload)
     if response.status_code !== 200:
         raise AssertionError("Authentication failed: %s", response.status_code)
         auth_data = response.json()
         token = auth_data.get('token')
         print("Authentication successful. Token received.")
     return token
-#option using requests 
-# response.raise_for_status()
-# auth_data = response.json()
-# token = auth_data.get('token')
-# print("Authentication successful. Token received.")
-# return token
-    
-    #if response.status_code == 200:
-        # Assuming the response contains the authentication token
-        #auth_data = response.json()
-       # token = auth_data.get('token')  # Adjust this if the token is under a different field
-       # print("Authentication successful. Token received.")
-       # return token
-    #else:
-        #print(f"Authentication failed: {response.status_code}")
-        #return None
 
-# Function to fetch cases from API using the token
+# Function to fetch cases from API using the token with pagination
 def fetch_data_from_api(token):
     headers = {
         'Authorization': f'Bearer {token}'
     }
     
-    response = requests.get(API_CASES_URL, headers=headers)
+    all_cases = []
+    page = 1
     
-    if response.status_code == 200:
-        return response.json()['data']  # Extract the 'data' field containing cases
-    else:
-        print(f"Error fetching data: {response.status_code}")
-        return None
+    while True:
+        response = requests.get(f"{API_CASES_URL}?per=1000&page={page}", headers=headers)
+        
+        if response.status_code != 200:
+            print(f"Error fetching data: {response.status_code}")
+            break
+        
+        data = response.json()
+        cases = data.get('data', [])
+        all_cases.extend(cases)
+        
+        # Check if we have more pages to fetch
+        total_records = data['metadata']['total']
+        per_page = data['metadata']['per']
+        total_pages = (total_records + per_page - 1) // per_page
+        
+        if page >= total_pages:
+            break
+        
+        page += 1  # Go to the next page
+    
+    return all_cases
 
 # Function to connect to PostgreSQL
 def connect_to_postgres():
@@ -87,8 +101,7 @@ def connect_to_postgres():
         print(f"Error connecting to PostgreSQL: {e}")
         return None
 
-# Function to create the necessary table (if it does not exist) - Please adjust it to get more data
-# Please adjust to reflect PRIMERO Data tables to import
+# Function to create the necessary table (if it does not exist)
 def create_table(connection):
     create_table_query = '''
     CREATE TABLE IF NOT EXISTS cases (
@@ -127,7 +140,6 @@ def insert_data_into_postgres(connection, cases):
     cursor = connection.cursor()
     
     for case in cases:
-        # Extract the necessary fields
         case_data = (
             case.get('id'),
             case.get('enabled'),
@@ -143,7 +155,7 @@ def insert_data_into_postgres(connection, cases):
             case.get('created_by'),
             case.get('last_updated_at'),
             case.get('last_updated_by'),
-            ','.join(case.get('nationality', [])),  # Join the nationality list into a comma-separated string (Cgeck table first)
+            ','.join(case.get('nationality', [])),  # Join nationality list into a string
             case.get('registration_date')
         )
         
@@ -164,7 +176,7 @@ def main():
     # Step 2: Fetch data from API using the token
     cases_data = fetch_data_from_api(token)
     
-    if cases_data is None:
+    if not cases_data:
         print("No data fetched. Exiting...")
         return
     
