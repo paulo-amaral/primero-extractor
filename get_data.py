@@ -45,13 +45,13 @@ def authenticate():
     return token
     
     # Send POST request for authentication
-    response = requests.post(API_TOKEN_URL, json=auth_payload)
-    if response.status_code !== 200:
-        raise AssertionError("Authentication failed: %s", response.status_code)
-        auth_data = response.json()
-        token = auth_data.get('token')
-        print("Authentication successful. Token received.")
-    return token
+    # response = requests.post(API_TOKEN_URL, json=auth_payload)
+    # if response.status_code !== 200:
+    #     raise AssertionError("Authentication failed: %s", response.status_code)
+    #     auth_data = response.json()
+    #     token = auth_data.get('token')
+    #     print("Authentication successful. Token received.")
+    # return token
 
 # Function to fetch cases from API using the token with pagination
 def fetch_data_from_api(token):
